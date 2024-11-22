@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Camera Feed</title>
+    <title>QR Code Scanner</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,12 +11,17 @@
             margin: 0;
             padding: 0;
         }
-        video {
+        #camera {
             width: 80%;
             height: auto;
             margin-top: 20px;
             border: 2px solid #000;
             border-radius: 10px;
+        }
+        #output {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
         }
         button {
             padding: 10px 20px;
@@ -34,20 +39,58 @@
     </style>
 </head>
 <body>
-    <h1>Live Camera Feed</h1>
+    <h1>QR Code Scanner</h1>
     <video id="camera" autoplay playsinline></video>
-    <br>
-    <button onclick="startCamera()">Open Camera</button>
+    <p id="output">Scanning for QR Code...</p>
+    <button onclick="stopCamera()">Stop Camera</button>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.min.js"></script>
     <script>
+        let videoStream;
+        const videoElement = document.getElementById('camera');
+        const outputElement = document.getElementById('output');
+        const canvasElement = document.createElement('canvas');
+        const canvasContext = canvasElement.getContext('2d');
+
         async function startCamera() {
-            const video = document.getElementById('camera');
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                video.srcObject = stream;
+                videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                videoElement.srcObject = videoStream;
+
+                videoElement.addEventListener('loadeddata', () => {
+                    scanQRCode();
+                });
             } catch (err) {
                 alert('Error accessing camera: ' + err.message);
             }
         }
+
+        function scanQRCode() {
+            if (videoElement.readyState === videoElement.HAVE_ENOUGH_DATA) {
+                canvasElement.width = videoElement.videoWidth;
+                canvasElement.height = videoElement.videoHeight;
+                canvasContext.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+
+                const imageData = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height);
+                const qrCode = jsQR(imageData.data, canvasElement.width, canvasElement.height);
+
+                if (qrCode) {
+                    outputElement.textContent = `QR Code Detected: ${qrCode.data}`;
+                    stopCamera();
+                    return;
+                }
+            }
+            requestAnimationFrame(scanQRCode);
+        }
+
+        function stopCamera() {
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+            }
+            videoElement.srcObject = null;
+        }
+
+        // Start the camera when the page loads
+        window.onload = startCamera;
     </script>
 </body>
 </html>
