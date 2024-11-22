@@ -23,6 +23,32 @@
             font-size: 18px;
             color: #333;
         }
+        .success-message {
+            display: none;
+            margin-top: 20px;
+        }
+        .succsess-alert {
+            cursor: default;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 80%;
+            margin: 0 auto;
+            height: 70px;
+            border-radius: 8px;
+            background-color: #232531;
+            padding: 10px;
+        }
+        .succsess-alert .text-success {
+            color: #2b9875;
+        }
+        .succsess-alert .text-gray {
+            color: #ccc;
+        }
+        .succsess-alert svg {
+            width: 24px;
+            height: 24px;
+        }
         button {
             padding: 10px 20px;
             font-size: 16px;
@@ -42,12 +68,33 @@
     <h1>QR Code Scanner</h1>
     <video id="camera" autoplay playsinline></video>
     <p id="output">Scanning for QR Code...</p>
+    <div class="success-message">
+        <div class="succsess-alert">
+            <div class="flex gap-2">
+                <div class="text-success bg-white/5 backdrop-blur-xl p-1 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"></path>
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-white">done successfully :)</p>
+                    <p class="text-gray">Order completed successfully!</p>
+                </div>
+            </div>
+            <button class="text-gray-600 hover:bg-white/5 p-1 rounded-md transition-colors ease-linear" onclick="hideMessage()">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
     <button onclick="stopCamera()">Stop Camera</button>
     <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.min.js"></script>
     <script>
         let videoStream;
         const videoElement = document.getElementById('camera');
         const outputElement = document.getElementById('output');
+        const successMessage = document.querySelector('.success-message');
         const canvasElement = document.createElement('canvas');
         const canvasContext = canvasElement.getContext('2d');
 
@@ -63,7 +110,6 @@
                     scanQRCode();
                 });
             } catch (err) {
-                // Fallback for browsers that don't support `exact: "environment"`
                 alert('Error accessing camera: ' + err.message);
             }
         }
@@ -78,12 +124,25 @@
                 const qrCode = jsQR(imageData.data, canvasElement.width, canvasElement.height);
 
                 if (qrCode) {
-                    outputElement.textContent = `QR Code Detected: ${qrCode.data}`;
-                    stopCamera();
-                    return;
+                    if (qrCode.data === "dbuebcjh3bjxh3b cjx3") {
+                        outputElement.textContent = "";
+                        showMessage();
+                        stopCamera();
+                        return;
+                    } else {
+                        outputElement.textContent = `QR Code Detected: ${qrCode.data}`;
+                    }
                 }
             }
             requestAnimationFrame(scanQRCode);
+        }
+
+        function showMessage() {
+            successMessage.style.display = "block";
+        }
+
+        function hideMessage() {
+            successMessage.style.display = "none";
         }
 
         function stopCamera() {
