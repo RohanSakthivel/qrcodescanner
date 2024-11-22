@@ -18,17 +18,19 @@
       padding: 20px;
     }
     #qr-reader {
-      width: 320px;
+      width: 100%;
+      max-width: 400px;
       margin: 20px auto;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      padding: 10px;
-      background-color: #f9f9f9;
     }
     #message {
       margin-top: 20px;
       font-size: 18px;
       color: #333;
+    }
+    #error-message {
+      margin-top: 50px;
+      font-size: 20px;
+      color: red;
     }
     footer {
       margin-top: 30px;
@@ -42,46 +44,50 @@
   <header>
     <h1>QR Code Scanner</h1>
   </header>
-  <div id="qr-reader"></div>
-  <div id="message">Point your camera at a QR code to scan.</div>
+
+  <div id="qr-reader" style="display: none;"></div>
+  <div id="message">Waiting to scan...</div>
+  <div id="error-message" style="display: none;">This feature is only available on mobile devices.</div>
+  
   <footer>&copy; 2024 QR Scanner App. Built for convenience.</footer>
 
   <script>
-    // Callback function for successful scan
-    function onScanSuccess(decodedText, decodedResult) {
-      console.log(`Decoded text: ${decodedText}`);
-
-      // Display the scanned message
-      const message = document.getElementById("message");
-      message.style.color = "green";
-      message.textContent = `Scanned: ${decodedText}`;
-
-      // Handle URL redirection if scanned text is a URL
-      if (decodedText.startsWith("http://") || decodedText.startsWith("https://")) {
-        setTimeout(() => {
-          // Redirect to the scanned URL after 2 seconds
-          window.location.href = decodedText;
-        }, 2000);
-      }
+    // Function to detect mobile devices
+    function isMobileDevice() {
+      return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 768;
     }
 
-    // Callback function for scan failure
-    function onScanFailure(error) {
-      console.warn(`QR Code scan error: ${error}`);
-    }
-
-    // Initialize the QR Code scanner
+    // Initialize the QR Code scanner for mobile devices
     function initializeQRScanner() {
-      const qrReader = new Html5QrcodeScanner("qr-reader", {
-        fps: 10, // Frames per second for scanning
-        qrbox: { width: 250, height: 250 }, // Scanning area size
+      const qrReader = new Html5Qrcode("qr-reader");
+      qrReader.start(
+        { facingMode: "environment" }, // Use the rear camera
+        {
+          fps: 10, // Frames per second
+          qrbox: { width: 250, height: 250 }, // Scanning area
+        },
+        (decodedText) => {
+          // Display the scanned QR code data
+          document.getElementById("message").textContent = `Scanned: ${decodedText}`;
+          qrReader.stop(); // Stop scanning after a successful scan
+        },
+        (error) => {
+          console.warn(`Scan failed: ${error}`);
+        }
+      ).catch((err) => {
+        console.error("Camera start failed:", err);
       });
-
-      qrReader.render(onScanSuccess, onScanFailure);
     }
 
-    // Run the scanner on page load
-    window.onload = initializeQRScanner;
+    // Check for mobile devices and start the scanner
+    window.onload = () => {
+      if (isMobileDevice()) {
+        document.getElementById("qr-reader").style.display = "block";
+        initializeQRScanner();
+      } else {
+        document.getElementById("error-message").style.display = "block";
+      }
+    };
   </script>
 </body>
 </html>
