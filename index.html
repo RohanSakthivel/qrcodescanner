@@ -3,64 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Code Scanner</title>
+    <title>QR Code Scanner UI</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
+            font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
+            background: linear-gradient(135deg, #1e293b, #3b82f6);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2rem;
         }
         #camera {
-            width: 80%;
+            width: 90%;
+            max-width: 400px;
             height: auto;
-            margin-top: 20px;
-            border: 2px solid #000;
+            border: 5px solid #ffffff44;
             border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
         #output {
-            margin-top: 20px;
-            font-size: 18px;
-            color: #333;
+            margin-top: 15px;
+            font-size: 1rem;
+            text-align: center;
         }
         .success-message {
             display: none;
             margin-top: 20px;
+            width: 90%;
+            max-width: 400px;
+            background-color: #1e293b;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
         }
-        .succsess-alert {
-            cursor: default;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 80%;
-            margin: 0 auto;
-            height: 70px;
-            border-radius: 8px;
-            background-color: #232531;
-            padding: 10px;
-        }
-        .succsess-alert .text-success {
+        .success-message svg {
+            width: 40px;
+            height: 40px;
             color: #2b9875;
         }
-        .succsess-alert .text-gray {
-            color: #ccc;
+        .success-message h2 {
+            font-size: 1.5rem;
+            margin-top: 10px;
+            color: #2b9875;
         }
-        .succsess-alert svg {
-            width: 24px;
-            height: 24px;
+        .success-message p {
+            color: #bbb;
+            font-size: 1rem;
         }
         button {
+            margin-top: 15px;
             padding: 10px 20px;
-            font-size: 16px;
-            margin-top: 20px;
-            cursor: pointer;
+            font-size: 1rem;
+            color: #fff;
+            background-color: #3b82f6;
             border: none;
-            background-color: #007bff;
-            color: white;
             border-radius: 5px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
         button:hover {
-            background-color: #0056b3;
+            background-color: #2563eb;
         }
     </style>
 </head>
@@ -69,26 +80,14 @@
     <video id="camera" autoplay playsinline></video>
     <p id="output">Scanning for QR Code...</p>
     <div class="success-message">
-        <div class="succsess-alert">
-            <div class="flex gap-2">
-                <div class="text-success bg-white/5 backdrop-blur-xl p-1 rounded-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"></path>
-                    </svg>
-                </div>
-                <div>
-                    <p class="text-white">done successfully :)</p>
-                    <p class="text-gray">Order completed successfully!</p>
-                </div>
-            </div>
-            <button class="text-gray-600 hover:bg-white/5 p-1 rounded-md transition-colors ease-linear" onclick="hideMessage()">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
-        </div>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"></path>
+        </svg>
+        <h2>Order Successfully Completed!</h2>
+        <p>Your QR Code has been verified.</p>
     </div>
     <button onclick="stopCamera()">Stop Camera</button>
+
     <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.min.js"></script>
     <script>
         let videoStream;
@@ -139,10 +138,6 @@
 
         function showMessage() {
             successMessage.style.display = "block";
-        }
-
-        function hideMessage() {
-            successMessage.style.display = "none";
         }
 
         function stopCamera() {
