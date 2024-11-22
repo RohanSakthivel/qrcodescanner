@@ -38,6 +38,18 @@
       font-size: 14px;
       color: #555;
     }
+    .btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    .btn:hover {
+      background-color: #45a049;
+    }
   </style>
 </head>
 <body>
@@ -48,7 +60,6 @@
   <div id="qr-reader" style="display: none;"></div>
   <div id="message">Waiting to scan...</div>
   <div id="error-message" style="display: none;">This feature is only available on mobile devices.</div>
-  
   <footer>&copy; 2024 QR Scanner App. Built for convenience.</footer>
 
   <script>
@@ -57,9 +68,10 @@
       return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 768;
     }
 
-    // Initialize the QR Code scanner for mobile devices
-    function initializeQRScanner() {
+    // Function to handle QR code scanning and reading
+    function handleQRCodeScanning() {
       const qrReader = new Html5Qrcode("qr-reader");
+      
       qrReader.start(
         { facingMode: "environment" }, // Use the rear camera
         {
@@ -70,20 +82,38 @@
           // Display the scanned QR code data
           document.getElementById("message").textContent = `Scanned: ${decodedText}`;
           qrReader.stop(); // Stop scanning after a successful scan
+          
+          // Redirect or show address if it's a valid URL
+          if (isValidURL(decodedText)) {
+            window.location.href = decodedText; // Redirect to the URL
+          } else {
+            alert(`Scanned Address: ${decodedText}`);
+          }
         },
         (error) => {
           console.warn(`Scan failed: ${error}`);
         }
       ).catch((err) => {
         console.error("Camera start failed:", err);
+        document.getElementById("message").textContent = "Error starting camera.";
       });
+    }
+
+    // Function to validate URL
+    function isValidURL(string) {
+      try {
+        new URL(string);
+        return true;
+      } catch (_) {
+        return false;
+      }
     }
 
     // Check for mobile devices and start the scanner
     window.onload = () => {
       if (isMobileDevice()) {
         document.getElementById("qr-reader").style.display = "block";
-        initializeQRScanner();
+        handleQRCodeScanning();
       } else {
         document.getElementById("error-message").style.display = "block";
       }
