@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code Scanner</title>
+  <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #4CAF50;
+      color: white;
+      padding: 20px;
+    }
+    #qr-reader {
+      width: 320px;
+      margin: 20px auto;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 10px;
+      background-color: #f9f9f9;
+    }
+    #message {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #333;
+    }
+    footer {
+      margin-top: 30px;
+      padding: 10px;
+      font-size: 14px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>QR Code Scanner</h1>
+  </header>
+  <div id="qr-reader"></div>
+  <div id="message">Point your camera at a QR code to scan.</div>
+  <footer>&copy; 2024 QR Scanner App. Built for convenience.</footer>
+
+  <script>
+    // Callback function for successful scan
+    function onScanSuccess(decodedText, decodedResult) {
+      console.log(`Decoded text: ${decodedText}`);
+
+      // Display the scanned message
+      const message = document.getElementById("message");
+      message.style.color = "green";
+      message.textContent = `Scanned: ${decodedText}`;
+
+      // Handle URL redirection if scanned text is a URL
+      if (decodedText.startsWith("http://") || decodedText.startsWith("https://")) {
+        setTimeout(() => {
+          // Redirect to the scanned URL after 2 seconds
+          window.location.href = decodedText;
+        }, 2000);
+      }
+    }
+
+    // Callback function for scan failure
+    function onScanFailure(error) {
+      console.warn(`QR Code scan error: ${error}`);
+    }
+
+    // Initialize the QR Code scanner
+    function initializeQRScanner() {
+      const qrReader = new Html5QrcodeScanner("qr-reader", {
+        fps: 10, // Frames per second for scanning
+        qrbox: { width: 250, height: 250 }, // Scanning area size
+      });
+
+      qrReader.render(onScanSuccess, onScanFailure);
+    }
+
+    // Run the scanner on page load
+    window.onload = initializeQRScanner;
+  </script>
+</body>
+</html>
