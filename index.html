@@ -73,6 +73,11 @@
         button:hover {
             background-color: #2563eb;
         }
+        .back-button {
+            display: none;
+            margin-top: 20px;
+            background-color: #1f2937;
+        }
     </style>
 </head>
 <body>
@@ -86,7 +91,7 @@
         <h2>Order Successfully Completed!</h2>
         <p>Your QR Code has been verified.</p>
     </div>
-    <button onclick="stopCamera()">Stop Camera</button>
+    <button class="back-button" onclick="goBack()">Back</button>
 
     <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.min.js"></script>
     <script>
@@ -94,6 +99,7 @@
         const videoElement = document.getElementById('camera');
         const outputElement = document.getElementById('output');
         const successMessage = document.querySelector('.success-message');
+        const backButton = document.querySelector('.back-button');
         const canvasElement = document.createElement('canvas');
         const canvasContext = canvasElement.getContext('2d');
 
@@ -138,6 +144,7 @@
 
         function showMessage() {
             successMessage.style.display = "block";
+            backButton.style.display = "inline-block"; // Show the back button
         }
 
         function stopCamera() {
@@ -145,6 +152,11 @@
                 videoStream.getTracks().forEach(track => track.stop());
             }
             videoElement.srcObject = null;
+        }
+
+        function goBack() {
+            // Redirect or reload the page
+            window.location.href = "index.html"; // Replace "index.html" with your desired page
         }
 
         // Start the camera when the page loads
