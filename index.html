@@ -53,13 +53,17 @@
 
         async function startCamera() {
             try {
-                videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+                // Request the environment-facing camera
+                videoStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: { exact: "environment" } }
+                });
                 videoElement.srcObject = videoStream;
 
                 videoElement.addEventListener('loadeddata', () => {
                     scanQRCode();
                 });
             } catch (err) {
+                // Fallback for browsers that don't support `exact: "environment"`
                 alert('Error accessing camera: ' + err.message);
             }
         }
