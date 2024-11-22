@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code Scanner</title>
+  <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #4CAF50;
+      color: white;
+      padding: 20px;
+    }
+    #qr-reader {
+      width: 100%;
+      max-width: 400px;
+      margin: 20px auto;
+    }
+    #message {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #333;
+    }
+    #error-message {
+      margin-top: 50px;
+      font-size: 20px;
+      color: red;
+    }
+    footer {
+      margin-top: 30px;
+      padding: 10px;
+      font-size: 14px;
+      color: #555;
+    }
+    .btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    .btn:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>QR Code Scanner</h1>
+  </header>
+
+  <div id="qr-reader" style="display: none;"></div>
+  <div id="message">Waiting to scan...</div>
+  <div id="error-message" style="display: none;">This feature is only available on mobile devices.</div>
+  <footer>&copy; 2024 QR Scanner App. Built for convenience.</footer>
+
+  <script>
+    // Function to detect mobile devices
+    function isMobileDevice() {
+      return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 768;
+    }
+
+    // Function to handle QR code scanning and reading
+    function handleQRCodeScanning() {
+      const qrReader = new Html5Qrcode("qr-reader");
+      
+      qrReader.start(
+        { facingMode: "environment" }, // Use the rear camera
+        {
+          fps: 10, // Frames per second
+          qrbox: { width: 250, height: 250 }, // Scanning area
+        },
+        (decodedText) => {
+          // Display the scanned QR code data
+          document.getElementById("message").textContent = `Scanned: ${decodedText}`;
+          qrReader.stop(); // Stop scanning after a successful scan
+          
+          // Redirect or show address if it's a valid URL
+          if (isValidURL(decodedText)) {
+            window.location.href = decodedText; // Redirect to the URL
+          } else {
+            alert(`Scanned Address: ${decodedText}`);
+          }
+        },
+        (error) => {
+          console.warn(`Scan failed: ${error}`);
+        }
+      ).catch((err) => {
+        console.error("Camera start failed:", err);
+        document.getElementById("message").textContent = "Error starting camera.";
+      });
+    }
+
+    // Function to validate URL
+    function isValidURL(string) {
+      try {
+        new URL(string);
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
+
+    // Check for mobile devices and start the scanner
+    window.onload = () => {
+      if (isMobileDevice()) {
+        document.getElementById("qr-reader").style.display = "block";
+        handleQRCodeScanning();
+      } else {
+        document.getElementById("error-message").style.display = "block";
+      }
+    };
+  </script>
+</body>
+</html>
